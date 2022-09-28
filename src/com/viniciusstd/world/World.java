@@ -11,13 +11,14 @@ import com.viniciusstd.entities.Bullet;
 import com.viniciusstd.entities.Enemy;
 import com.viniciusstd.entities.Entity;
 import com.viniciusstd.entities.LifePack;
+import com.viniciusstd.entities.Particles;
 import com.viniciusstd.entities.Player;
 import com.viniciusstd.entities.Weapon;
 import com.viniciusstd.graficos.SpriteSheet;
 import com.viniciusstd.main.Game;
 
 public class World {
-	private static Tile[] tiles;
+	public static Tile[] tiles;
 	public static int WIDTH, HEIGHT; 
 	public static final int TILE_SIZE = 16;
 	
@@ -81,6 +82,12 @@ public class World {
 		}
 	}
 	
+	public static void generateParticles(int amount, int x, int y) {
+		for(int i=0; i<amount; i++) {
+			Game.entities.add(new Particles((int)x, (int)y, 1,1,null));
+		}
+	}
+	
 	public static boolean isFree(int xNext, int yNext) {
 		int x1 = xNext/TILE_SIZE;
 		int y1 = yNext/TILE_SIZE;
@@ -100,6 +107,25 @@ public class World {
 				tiles[x4 + (y4*World.WIDTH)] instanceof WallTile);
 	}
 	
+	public static boolean isFreeDynamic(int xNext, int yNext, int width, int height) {
+		int x1 = xNext/TILE_SIZE;
+		int y1 = yNext/TILE_SIZE;
+		
+		int x2 = (xNext + width - 1)/TILE_SIZE;
+		int y2 = yNext/TILE_SIZE;
+		
+		int x3 = xNext/TILE_SIZE;
+		int y3 = (yNext + height - 1)/TILE_SIZE;
+		
+		int x4 = (xNext + width - 1)/TILE_SIZE;
+		int y4 = (yNext + height - 1)/TILE_SIZE;
+		
+		return !(tiles[x1 + (y1*World.WIDTH)] instanceof WallTile ||
+				tiles[x2 + (y2*World.WIDTH)] instanceof WallTile ||
+				tiles[x3 + (y3*World.WIDTH)] instanceof WallTile ||
+				tiles[x4 + (y4*World.WIDTH)] instanceof WallTile);
+	}
+	
 	public static void restartGame(String level) {
 		Game.entities.clear();
 		Game.enemies.clear();
@@ -109,6 +135,33 @@ public class World {
 		Game.player = new Player(0,0,16,16, Game.spritesheet.getSprite(32, 0, 16, 16));
 		Game.entities.add(Game.player);
 		Game.world = new World("/"+level);
+	}
+	
+	public static void renderMiniMapa() {
+		for(int i=0; i<Game.miniMapaPixels.length; i++) {
+			Game.miniMapaPixels[i] = 0;
+		}
+		
+		for(int xx=0; xx<WIDTH; xx++) {
+			for(int yy=0; yy<HEIGHT; yy++) {
+				if(tiles[xx + (yy*WIDTH)] instanceof WallTile) {
+					Game.miniMapaPixels[xx + (yy*WIDTH)] = 0x808080;
+				}
+			}
+		}
+		
+		int xPlayer = Game.player.getX()/16;
+		int yPlayer = Game.player.getY()/16;
+		Game.miniMapaPixels[xPlayer + (yPlayer*WIDTH)] = 0x0000ff;
+		
+		if(Game.enemies.size() > 0) {
+			for(int i=0; i<Game.enemies.size(); i++) {
+				Enemy e = Game.enemies.get(i);
+				int xEnemy = e.getX()/16;
+				int yEnemy = e.getY()/16;
+				Game.miniMapaPixels[xEnemy + (yEnemy*WIDTH)] = 0xff0000;
+			}
+		}
 	}
 	
 	public void render(Graphics g) {

@@ -1,11 +1,13 @@
 package com.viniciusstd.entities;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import com.viniciusstd.graficos.SpriteSheet;
 import com.viniciusstd.main.Game;
+import com.viniciusstd.main.SoundAdvanced;
 import com.viniciusstd.world.Camera;
 import com.viniciusstd.world.World;
 
@@ -49,6 +51,8 @@ public class Player extends Entity {
 	}
 	
 	public void tick() {
+		depth = 1;
+		
 		moved = false;
 		if(right && World.isFree((int)(x+speed), this.getY())) {
 			moved = true;
@@ -141,8 +145,7 @@ public class Player extends Entity {
 			}
 		}
 		
-		Camera.x = Camera.clamp(this.getX() - (Game.WIDTH/2), 0, World.WIDTH*16 - Game.WIDTH);
-		Camera.y = Camera.clamp(this.getY() - (Game.HEIGHT/2), 0, World.HEIGHT*16 - Game.HEIGHT);
+		updateCamera();
 	}
 	
 	public void checkItems() {
@@ -171,6 +174,11 @@ public class Player extends Entity {
 				}
 			}
 		}
+	}
+	
+	public void updateCamera() {
+		Camera.x = Camera.clamp(this.getX() - (Game.WIDTH/2), 0, World.WIDTH*16 - Game.WIDTH);
+		Camera.y = Camera.clamp(this.getY() - (Game.HEIGHT/2), 0, World.HEIGHT*16 - Game.HEIGHT);
 	}
 	
 	public void render(Graphics g) {

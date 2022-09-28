@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 
 import com.viniciusstd.main.Game;
 import com.viniciusstd.world.Camera;
+import com.viniciusstd.world.World;
 
 public class Shoot extends Entity {
 	
@@ -24,6 +25,11 @@ public class Shoot extends Entity {
 		y+=dy*speed;
 		life++;
 		if(life == curLife) {
+			Game.shoot.remove(this);
+			return;
+		}
+		if(!World.isFreeDynamic(this.getX(), this.getY(), this.getWidth(), this.getHeight())) {
+			World.generateParticles(20, this.getX(), this.getY());
 			Game.shoot.remove(this);
 			return;
 		}
